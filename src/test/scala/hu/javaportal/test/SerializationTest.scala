@@ -1,55 +1,75 @@
 package hu.javaportal.test
 
 import org.scalatra.ScalatraServlet
-import org.json4s.{FieldSerializer, DefaultFormats, Formats}
+import org.json4s.{DefaultFormats, Formats}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.BeforeAndAfter
-import net.fwbrasil.activate.entity.Var
 import org.scalatra.json.JacksonJsonSupport
 
-trait SimplePrivateBad extends Serializable {
-  @transient private var _boo = "Asd"
-  @transient
-  private var _baseVar: Var[Any] = null
-}
 
-case class MyTestBad(var name: String) extends SimplePrivateBad
+import h2Context._
 
-
-trait SimplePrivateOk extends Serializable {
-  @transient private var _boo = "Asd"
-}
-
-case class MyTestOk(var name: String) extends SimplePrivateOk
+case class Wrapper[T](success: Boolean, data: T)
 
 class SerializationServlet extends ScalatraServlet with JacksonJsonSupport {
-  protected implicit def jsonFormats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
+  protected implicit def jsonFormats: Formats = DefaultFormats + new EntityJson4sSerializer[Test]
 
   before() {
     contentType = formats("json")
   }
-  get("/bad") {
-    MyTestBad("Bad")
+
+  post("/bad") {
+    transactional {
+      val t = createEntityFromJson[Test](request.body)
+      Wrapper(true, t)
+    }
   }
-  get("/ok") {
-    MyTestOk("Ok")
+
+  post("/ok") {
+    transactional {
+      val t = createEntityFromJson[Test](request.body)
+      parse(t.toJson)
+    }
+  }
+
+  post("/bad2") {
+    val t = transactional {
+      createEntityFromJson[Test](request.body)
+    }
+    t
   }
 }
 
 @RunWith(classOf[JUnitRunner])
 class SerializationTest extends ScalatraFunSuite with MockitoSugar with BeforeAndAfter {
+  transactional {}
+
   addServlet(new SerializationServlet, "/*")
-  test("Correct result") {
-    get("/ok", headers = Map("Content-Type" -> "application/json")) {
+
+  test("Wrapper serialization problem") {
+    println("Start test")
+    post("/bad", """{"name":"test"}""", headers = Map("Content-Type" -> "application/json")) {
       status should equal(200)
     }
   }
-  test("Internal error") {
-    get("/bad", headers = Map("Content-Type" -> "application/json")) {
+
+  test("Serialization with string result") {
+    post("/ok", """{"name":"test"}""", headers = Map("Content-Type" -> "application/json")) {
       status should equal(200)
+      println(body)
+      body should include( """"name":"test"}""")
+    }
+  }
+
+  test("Serialization problem") {
+    println("Start test")
+    post("/bad2", """{"name":"test"}""", headers = Map("Content-Type" -> "application/json")) {
+      status should equal(200)
+      println(body)
+      body should include( """"name":"test"}""")
     }
   }
 }

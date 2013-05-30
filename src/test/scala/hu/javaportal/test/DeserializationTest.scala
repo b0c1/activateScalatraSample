@@ -9,10 +9,12 @@ import org.scalatest.BeforeAndAfter
 import h2Context._
 import org.scalatra.ScalatraServlet
 import org.scalatra.json.JacksonJsonSupport
-import org.json4s.{FieldSerializer, DefaultFormats, Formats}
+import org.json4s.{DefaultFormats, Formats}
+
+case class Success(result: Boolean)
 
 class DeSerializationServlet extends ScalatraServlet with JacksonJsonSupport {
-  protected implicit def jsonFormats: Formats = DefaultFormats + FieldSerializer[AnyRef]()
+  protected implicit def jsonFormats: Formats = DefaultFormats ++ h2Context.entitySerializers
 
   before() {
     contentType = formats("json")
@@ -20,7 +22,8 @@ class DeSerializationServlet extends ScalatraServlet with JacksonJsonSupport {
 
   post("/") {
     transactional {
-      parsedBody.extract[Test]
+      val t = createEntityFromJson[Test](request.body)
+      Success(true)
     }
   }
 }

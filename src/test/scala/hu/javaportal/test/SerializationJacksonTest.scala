@@ -1,11 +1,8 @@
 package hu.javaportal.test
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSuite, BeforeAndAfter}
 
-import h2Context._
 import com.fasterxml.jackson.databind.{DeserializationFeature, SerializationFeature, PropertyNamingStrategy, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.io.StringWriter
@@ -38,21 +35,21 @@ object JsonSupport {
   }
 }
 
-@RunWith(classOf[JUnitRunner])
+//@RunWith(classOf[JUnitRunner])
 class SerializationJacksonTest extends FunSuite with MockitoSugar with BeforeAndAfter {
-  test("Correct result") {
-    transactional {
-      new Test("hello")
-    }
-
-    transactional {
-      val roles = all[Test]
-      JsonSupport.json(roles) === """[{"name":"hello"}]"""
-    }
-  }
-  after {
-    transactional {
-      all[Test].foreach(_.delete)
-    }
-  }
+  //  test("Correct result") {
+  //    transactional {
+  //      new Test("hello")
+  //    }
+  //
+  //    transactional {
+  //      val roles = all[Test]
+  //      JsonSupport.json(roles) === """[{"name":"hello"}]"""
+  //    }
+  //  }
+  //  after {
+  //    transactional {
+  //      all[Test].foreach(_.delete)
+  //    }
+  //  }
 }
