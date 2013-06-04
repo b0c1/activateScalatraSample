@@ -26,7 +26,6 @@ object JsonSupport {
 
   def parse[T](value: String)(implicit m: scala.Predef.Manifest[T]): Option[T] = {
     if (m.runtimeClass.isInstanceOf[Class[T]]) {
-      println(new String(value.getBytes))
       Some(jsonMapper.readValue(value.getBytes, m.runtimeClass.asInstanceOf[Class[T]]))
     } else {
       None
