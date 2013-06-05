@@ -1,8 +1,11 @@
 package hu.javaportal.test
 
 import h2Context._
+import scala.beans.BeanProperty
 
-case class Test(var name: String) extends Entity
+class Test extends Entity {
+  var name: String = ""
+}
 
 class TestMigration extends Migration {
   def timestamp = 20130523001l
