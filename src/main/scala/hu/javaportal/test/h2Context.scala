@@ -4,7 +4,7 @@ import net.fwbrasil.activate.ActivateContext
 import net.fwbrasil.activate.storage.relational.PooledJdbcRelationalStorage
 import net.fwbrasil.activate.storage.relational.idiom.h2Dialect
 
-object h2Context extends ActivateContext {
+object h2Context extends ActivateContext with JacksonActivateContext {
   val storage = new PooledJdbcRelationalStorage {
     val jdbcDriver = "org.h2.Driver"
     val user = ""
