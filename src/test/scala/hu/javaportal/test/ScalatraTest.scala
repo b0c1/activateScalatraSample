@@ -10,10 +10,11 @@ import org.scalatra.ScalatraServlet
 
 class TestServlet extends ScalatraServlet {
   post("/") {
+    import JacksonJsonContext._
     transactional {
       contentType = "application/json"
       val entity = createOrUpdateEntityFromJson[Test](request.body)
-      entity.toJson
+      entity.entityToJson
     }
   }
 }

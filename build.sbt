@@ -12,8 +12,8 @@ resolvers += "typesafe" at "http://repo.typesafe.com/typesafe/repo/"
 
 
 libraryDependencies ++= Seq(
-    "net.fwbrasil" %% "activate-jdbc" % "1.3-SNAPSHOT",
-    "net.fwbrasil" %% "activate-core" % "1.3-SNAPSHOT",
+    "net.fwbrasil" %% "activate-jdbc" % "1.3-SNAPSHOT" changing(),
+    "net.fwbrasil" %% "activate-core" % "1.3-SNAPSHOT" changing(),
     "org.scalatra" %% "scalatra" % "2.2.1" % "test",
     "org.scalatra" %% "scalatra-scalatest" % "2.2.1" % "test",
     "com.fasterxml.jackson.core" % "jackson-core" % "2.2.1",

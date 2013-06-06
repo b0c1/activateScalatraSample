@@ -1,12 +1,11 @@
 package hu.javaportal.test
 
-import net.fwbrasil.activate.ActivateContext
 import com.fasterxml.jackson.databind.{JsonNode, DeserializationFeature, SerializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.io.StringWriter
+import net.fwbrasil.activate.entity.Entity
 
-trait JacksonActivateContext {
-  this: ActivateContext =>
+trait JacksonJsonContext extends JsonContext {
 
   def mapper = new ObjectMapper {
     registerModule(DefaultScalaModule)
@@ -31,24 +30,30 @@ trait JacksonActivateContext {
     writer.toString
   }
 
+  def createEntityFromJson[E <: Entity : Manifest](json: String): E = {
+    parse[E](json)
+  }
+
+  def updateEntityFromJson[E <: Entity : Manifest](json: String, entity: E): E = {
+    parse[E](json, entity)
+  }
+
+  def createJsonFromEntity[E <: Entity : Manifest](entity: E) = {
+    json(entity)
+  }
+
   def createOrUpdateEntityFromJson[E <: Entity : Manifest](json: String): E = {
     mapper.readTree(json).get("id") match {
       case id: JsonNode =>
-        val entity = byId[E](id.asText()).get
+        val entity = context.byId[E](id.asText()).get
         parse[E](json, entity)
       case _ => parse[E](json)
     }
 
   }
 
-  implicit class EntityJsonMethods[E <: Entity : Manifest](val entity: E) {
-    def toJson = {
-      json(entity)
-    }
+}
 
-    def updateFromJson(json: String): E = {
-      parse[E](json, entity)
-    }
-  }
+object JacksonJsonContext extends JacksonJsonContext {
 
 }
